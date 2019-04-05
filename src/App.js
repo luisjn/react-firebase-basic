@@ -75,6 +75,14 @@ class App extends Component {
     this.refs.uid.value = ''
   }
 
+  removeData = developer => {
+    const { developers } = this.state
+    const newState = developers.filter(data => {
+      return data.uid !== developer.uid
+    })
+    this.setState({ developers: newState })
+  }
+
   render() {
     const { developers } = this.state
     return (
@@ -101,7 +109,7 @@ class App extends Component {
                       </Typography>
                     </CardContent>
                     <CardActions>
-                      <Button>Delete</Button>
+                      <Button onClick={() => this.removeData(developer)}>Delete</Button>
                       <Button>Edit</Button>
                     </CardActions>
                   </Card>
