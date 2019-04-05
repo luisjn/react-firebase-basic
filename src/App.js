@@ -26,9 +26,21 @@ class App extends Component {
     this.getUserData()
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState !== this.state) {
+      this.writeUserData()
+    }
+  }
+
+  writeUserData = () => {
+    firebase.database()
+      .ref("/")
+      .set(this.state)
+  }
+
   getUserData = () => {
     let ref = firebase.database().ref('/')
-    
+
     ref.on('value', snapshot => {
       const state = snapshot.val()
       this.setState(state)
@@ -37,8 +49,30 @@ class App extends Component {
 
   handleSubmit = event => {
     event.preventDefault()
-    console.log('submit')
-    // console.log(this.name.value)
+    let name = this.name.value
+    let role = this.role.value
+    let uid = this.refs.uid.value
+
+    if (uid && name && role) {
+      const { developers } = this.state
+      const devIndex = developers.findIndex(data => {
+        return data.uid === uid
+      })
+
+      developers[devIndex].name = name
+      developers[devIndex].role = role
+
+      this.setState({ developers })
+    } else if (name && role) {
+      const uid = new Date().getTime().toString()
+      const { developers } = this.state
+      developers.push({ uid, name, role })
+      this.setState({ developers })
+    }
+
+    this.name.value = ''
+    this.role.value = ''
+    this.refs.uid.value = ''
   }
 
   render() {
@@ -55,15 +89,15 @@ class App extends Component {
               justify='center'
               alignItems='center'
             >
-              {developers.map((developer, index) => (
-                <Grid item key={index}>
+              {developers.map((developer) => (
+                <Grid item key={developer.uid}>
                   <Card className='card'>
                     <CardContent>
                       <Typography variant='h5'>
-                        { developer.name }
+                        {developer.name}
                       </Typography>
                       <Typography variant='subtitle1' color="textSecondary">
-                        { developer.role }
+                        {developer.role}
                       </Typography>
                     </CardContent>
                     <CardActions>
@@ -79,6 +113,7 @@ class App extends Component {
         <Typography variant='h2' gutterBottom>Add new team member here</Typography>
         <Grid item xs={12}>
           <form onSubmit={this.handleSubmit} autoComplete='off'>
+            <input type="hidden" ref="uid" />
             <Grid item xs={12}>
               <TextField
                 id="name"
