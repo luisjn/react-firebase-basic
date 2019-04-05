@@ -83,6 +83,12 @@ class App extends Component {
     this.setState({ developers: newState })
   }
 
+  updateData = developer => {
+    this.refs.uid.value = developer.uid
+    this.name.value = developer.name
+    this.role.value = developer.role
+  }
+
   render() {
     const { developers } = this.state
     return (
@@ -110,7 +116,7 @@ class App extends Component {
                     </CardContent>
                     <CardActions>
                       <Button onClick={() => this.removeData(developer)}>Delete</Button>
-                      <Button>Edit</Button>
+                      <Button onClick={() => this.updateData(developer)}>Edit</Button>
                     </CardActions>
                   </Card>
                 </Grid>
