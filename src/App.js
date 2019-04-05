@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import firebase from 'firebase'
+import config from './config'
 
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
@@ -11,7 +13,36 @@ import TextField from '@material-ui/core/TextField'
 import './App.css'
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    firebase.initializeApp(config)
+
+    this.state = {
+      developers: []
+    }
+  }
+
+  componentDidMount() {
+    this.getUserData()
+  }
+
+  getUserData = () => {
+    let ref = firebase.database().ref('/')
+    
+    ref.on('value', snapshot => {
+      const state = snapshot.val()
+      this.setState(state)
+    })
+  }
+
+  handleSubmit = event => {
+    event.preventDefault()
+    console.log('submit')
+    // console.log(this.name.value)
+  }
+
   render() {
+    const { developers } = this.state
     return (
       <div>
         <Typography variant='h2' gutterBottom>Firebase Development Team</Typography>
@@ -24,15 +55,15 @@ class App extends Component {
               justify='center'
               alignItems='center'
             >
-              {([0, 1, 2, 3, 4]).map(value => (
-                <Grid item key={value}>
+              {developers.map((developer, index) => (
+                <Grid item key={index}>
                   <Card className='card'>
                     <CardContent>
                       <Typography variant='h5'>
-                        Luis Jaramillo
+                        { developer.name }
                       </Typography>
                       <Typography variant='subtitle1' color="textSecondary">
-                        Full Stack
+                        { developer.role }
                       </Typography>
                     </CardContent>
                     <CardActions>
@@ -47,12 +78,14 @@ class App extends Component {
         </Grid>
         <Typography variant='h2' gutterBottom>Add new team member here</Typography>
         <Grid item xs={12}>
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.handleSubmit} autoComplete='off'>
             <Grid item xs={12}>
               <TextField
                 id="name"
                 label="Name"
                 margin="normal"
+                inputRef={el => this.name = el}
+                ref='name'
               />
             </Grid>
             <Grid item xs={12}>
@@ -60,6 +93,7 @@ class App extends Component {
                 id="role"
                 label="Role"
                 margin="normal"
+                inputRef={el => this.role = el}
               />
             </Grid>
             <Grid item xs={12}>
